@@ -13,6 +13,7 @@ export default function EntryList({ onCreate, onEdit }) {
         const entriesData = await response.json();
         setEntries(entriesData);
       } catch (error) {
+        console.log(error);
         setError(error);
       } finally {
         setIsLoading(false);
