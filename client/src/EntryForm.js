@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { addEntry, removeEntry, updateEntry } from './data';
 
 /**
  * Form that adds or edits an entry.
@@ -11,21 +10,59 @@ export default function EntryForm({ entry, onSubmit }) {
   const [photoUrl, setPhotoUrl] = useState(entry?.photoUrl ?? '');
   const [notes, setNotes] = useState(entry?.notes ?? '');
   const [isDeleting, setIsDeleting] = useState(false);
+  const [error, setError] = useState();
 
-  function handleSubmit(event) {
+  async function handleSubmit(event) {
     event.preventDefault();
     const newEntry = { title, photoUrl, notes };
-    if (entry) {
-      updateEntry({ ...entry, ...newEntry });
-    } else {
-      addEntry(newEntry);
+    try {
+      if (entry) {
+        const response = await fetch(`/api/entries/${entry.entryId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(newEntry),
+        });
+        if (!response.ok) throw new Error(`Error: ${response.status}`);
+      } else {
+        const response = await fetch('/api/entries', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(newEntry),
+        });
+        if (!response.ok) throw new Error(`Error: ${response.status}`);
+      }
+    } catch (error) {
+      setError(error);
     }
     onSubmit();
   }
 
-  function handleDelete() {
-    removeEntry(entry.entryId);
+  async function handleDelete() {
+    try {
+      const response = await fetch(`/api/entries/${entry.entryId}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!response.ok) throw new Error(`Error: ${response.status}`);
+    } catch (error) {
+      setError(error);
+    }
     onSubmit();
+  }
+
+  if (error) {
+    console.error('Fetch error:', error);
+    return (
+      <div>
+        Error! {error instanceof Error ? error.message : 'Unknown error'}
+      </div>
+    );
   }
 
   return (

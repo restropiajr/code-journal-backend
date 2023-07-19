@@ -24,7 +24,7 @@ app.get('/api/entries', async (req, res, next) => {
           order by "entryId"
     `;
     const result = await db.query(sql);
-    const [entries] = result.rows;
+    const entries = result.rows;
     res.status(200).json(entries);
   } catch (error) {
     next(error);
@@ -35,13 +35,13 @@ app.post('/api/entries', async (req, res, next) => {
   try {
     const { title, notes, photoUrl } = req.body;
     if (!title) {
-      throw new ClientError('400', 'title is a required field. ');
+      throw new ClientError(400, 'title is a required field. ');
     }
     if (!notes) {
-      throw new ClientError('400', 'notes is a required field. ');
+      throw new ClientError(400, 'notes is a required field. ');
     }
     if (!photoUrl) {
-      throw new ClientError('400', 'photoUrl is a required field. ');
+      throw new ClientError(400, 'photoUrl is a required field. ');
     }
     const sql = `
           insert into "entries" ("title", "notes", "photoUrl")
@@ -62,16 +62,16 @@ app.put('/api/entries/:entryId', async (req, res, next) => {
     const entryId = Number(req.params.entryId);
     const { title, notes, photoUrl } = req.body;
     if (!title) {
-      throw new ClientError('400', 'title is a required field. ');
+      throw new ClientError(400, 'title is a required field. ');
     }
     if (!notes) {
-      throw new ClientError('400', 'notes is a required field. ');
+      throw new ClientError(400, 'notes is a required field. ');
     }
     if (!photoUrl) {
-      throw new ClientError('400', 'photoUrl is a required field. ');
+      throw new ClientError(400, 'photoUrl is a required field. ');
     }
     if (!(entryId >= 0)) {
-      throw new ClientError('400', 'entryId needs to be a positive integer. ');
+      throw new ClientError(400, 'entryId needs to be a positive integer. ');
     }
     const sql = `
           update "entries"
